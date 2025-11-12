@@ -22,8 +22,7 @@ def morgan_fingerprint(smiles):
     if not mol: return arr
     fp = rdMD.GetMorganFingerprintAsBitVect(
         mol, radius=Radius, nBits=N_BITS,
-        useFeatures=True, useChirality=False
-    )
+        useFeatures=True, useChirality=False)
     DataStructs.ConvertToNumpyArray(fp, arr)
     return arr
 
@@ -33,8 +32,7 @@ def morgan_counts(smiles, n_bits=N_BITS, radius=Radius):
     if not mol: return arr
     fp = rdMD.GetHashedMorganFingerprint(
         mol, radius=radius, nBits=n_bits,
-        useFeatures=True
-    )
+        useFeatures=True)
     DataStructs.ConvertToNumpyArray(fp, arr)
     return arr
 
@@ -119,8 +117,8 @@ pipe = Pipeline([
     ("mlp", MLPRegressor(
         hidden_layer_sizes = (512,256,128),
         activation = "tanh",
-        solver = "adam",
-        alpha = 1e-3,
+        learning_rate="adaptive",
+        alpha = 1e-4,
         learning_rate_init = 1e-4,
         max_iter = 2000,
         early_stopping = True,
@@ -128,6 +126,17 @@ pipe = Pipeline([
         random_state = 42
     ))
 ])
+
+# --- dump engineered TRAIN matrix to CSV (bits + counts_s + desc_s + target)
+bit_cols   = [f"bit_{i}"   for i in range(bits_train.shape[1])]
+cnt_cols   = [f"cnt_{i}"   for i in range(counts_train_s.shape[1])]
+desc_cols  = [f"desc_{i}"  for i in range(desc_train_s.shape[1])]
+
+train_X_df = pd.DataFrame(X, columns=bit_cols + cnt_cols + desc_cols)
+train_X_df.insert(0, "SMILES", train_df["SMILES"].to_numpy())
+train_X_df["Tm"] = Y
+train_X_df.to_csv("Final_Features_df.csv", index=False)
+
 
 pipe.fit(X_train, Y_train)
 

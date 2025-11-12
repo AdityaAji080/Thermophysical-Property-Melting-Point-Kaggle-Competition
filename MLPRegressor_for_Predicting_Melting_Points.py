@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 from rdkit import RDLogger
+
 RDLogger.DisableLog("rdApp.*")
 
 # -------------------------------------------------
@@ -173,6 +174,8 @@ pipe = Pipeline([
         random_state=42
     ))
 ])
+
+pd.DataFrame(X_train).to_csv("Final_Features_df.csv", index=False)
 
 pipe.fit(X_train, Y_train)
 
