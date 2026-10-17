@@ -25,7 +25,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import StandardScaler
 
 from features import BlockScaler, featurize, take
 
@@ -43,8 +45,12 @@ def build_model(name, device, seed):
                   learning_rate_init=1e-4, max_iter=2000, early_stopping=True,
                   n_iter_no_change=100, random_state=seed)
     if name == "mlp":
-        return MLPRegressor(alpha=1e-4, learning_rate="adaptive", **common)
-    return MLPRegressor(alpha=1e-3, validation_fraction=0.15, **common)  # mlp_maccs
+        mlp = MLPRegressor(alpha=1e-4, learning_rate="adaptive", **common)
+    else:  # mlp_maccs
+        mlp = MLPRegressor(alpha=1e-3, validation_fraction=0.15, **common)
+    # Standardise the target: regressing raw kelvin (~300) through tanh layers can collapse to a
+    # constant prediction at the mean, which early stopping then locks in.
+    return TransformedTargetRegressor(regressor=mlp, transformer=StandardScaler())
 
 
 def metrics(y, pred):
