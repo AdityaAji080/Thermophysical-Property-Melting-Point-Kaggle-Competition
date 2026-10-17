@@ -12,6 +12,8 @@ Molecules are featurised with RDKit, the competition's 2,662 training molecules 
 | Model | MAE (K) | RMSE (K) | R² | MAE on Kaggle rows (K) |
 |---|---|---|---|---|
 | CatBoost (depth 8, early stopping) | **27.2** | 39.0 | 0.812 | 25.1 |
+| MLP 512-256-128 (tanh) | 33.8 | 47.5 | 0.721 | 33.6 |
+| MLP + MACCS keys | 33.2 | 46.0 | 0.739 | 32.6 |
 | Predict the training mean | 71.1 | | | |
 
 The *Kaggle rows* column is the closest proxy for the competition's test set. For scale, 90% of the training melting points lie between 215 K and 524 K (standard deviation 91 K).
