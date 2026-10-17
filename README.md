@@ -29,11 +29,11 @@ The *Kaggle rows* column is the closest proxy for the competition's test set. Fo
 
 Scaling statistics are fitted on the training split only.
 
-## Data and leakage
+## Data and de-duplication
 
 `prepare_data.py` merges the Kaggle training set with the [Jean-Claude Bradley Open Melting Point Dataset](https://doi.org/10.6084/m9.figshare.1031637) (CC0). It drops rows flagged *do not use* and converts °C to K. **Molecules are matched by RDKit canonical SMILES**, and Bradley molecules that also appear in the Kaggle train or test sets are removed.
 
-Canonicalising matters. The same molecule can be written as many different SMILES strings, so matching raw strings misses most duplicates. With raw-string matching, **492 of the 666 test molecules (74%)** would have leaked into training through the Bradley data, and the hold-out score would have been optimistic. Canonical matching removes 1,409 such Bradley rows.
+Canonicalising matters because the same molecule can be written as many different SMILES strings. The Bradley data contains **492 of the 666 test molecules (74%)** under spellings that differ from the test set's, so only canonical matching keeps them out of training. In total, 1,409 Bradley rows are removed this way, which keeps the hold-out and test evaluation honest.
 
 ## Usage
 
